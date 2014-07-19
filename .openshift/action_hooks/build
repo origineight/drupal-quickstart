@@ -7,7 +7,7 @@
 set -e
 
 #
-# The PHP dir most be controlled by Drupal content
+# The PHP dir must be controlled by Drupal content
 #
 if [ -e "${OPENSHIFT_REPO_DIR}php" -a ! -h "${OPENSHIFT_REPO_DIR}php" ]
 then
@@ -16,7 +16,7 @@ then
 fi
 
 DRUPAL_DIR=${OPENSHIFT_DATA_DIR}drupal
-DRUPAL_SITE_DIR=${OPENSHIFT_DATA_DIR}sites
+DRUPAL_SITES_DIR=${OPENSHIFT_DATA_DIR}sites
 
 echo
 
@@ -73,10 +73,30 @@ echo
 # Link the /sites directory (where Drupal stores modules and files)
 # into the install dir in order to keep it easily accessible.
 #/
-if [ ! -d "$DRUPAL_SITE_DIR" ]
+if [ ! -d "$DRUPAL_SITES_DIR" ]
 then
-  cp -r $DRUPAL_INSTALL_DIR/sites.original $DRUPAL_SITE_DIR
+  cp -r $DRUPAL_INSTALL_DIR/sites.original $DRUPAL_SITES_DIR
   ln -sfn ../../sites $DRUPAL_INSTALL_DIR/sites
+fi
+
+#
+# Link the /sites/all/* directories
+# into the install dir in order to keep it easily accessible.
+#/
+
+if [ ! -d "$DRUPAL_SITES_DIR/all/modules/contrib" ]
+then
+	if [ ! -d "$DRUPAL_SITES_DIR/all/libraries" ]
+	then
+		mkdir -p "$DRUPAL_SITES_DIR/all/libraries"
+	fi
+  ln -sfn ../../../../repo/modules/contrib $DRUPAL_SITES_DIR/all/modules/contrib
+  ln -sfn ../../../../repo/modules/custom $DRUPAL_SITES_DIR/all/modules/custom
+  ln -sfn ../../../../repo/modules/features $DRUPAL_SITES_DIR/all/modules/features
+  ln -sfn ../../../../repo/themes/contrib $DRUPAL_SITES_DIR/all/themes/contrib
+  ln -sfn ../../../../repo/themes/custom $DRUPAL_SITES_DIR/all/themes/custom
+  ln -sfn ../../../../repo/libraries/contrib $DRUPAL_SITES_DIR/all/libraries/contrib
+  ln -sfn ../../../../repo/libraries/custom $DRUPAL_SITES_DIR/all/libraries/custom
 fi
 
 #
